@@ -1,0 +1,90 @@
+locale: en_US.UTF-8
+# country: US
+# language: en
+
+mirror:
+    hostname: archive.ubuntu.com
+    directory: /ubuntu
+    # proxy:
+
+timezone: UTC
+
+username: ubuntu
+password: insecure
+
+partman: |
+
+    d-i partman-auto/disk string /dev/sda /dev/sdb
+    d-i partman-auto/method string raid
+    d-i partman-auto/purge_lvm_from_device boolean true
+
+    d-i partman-lvm/device_remove_lvm boolean true
+    d-i partman-md/device_remove_md boolean true
+
+    # Confirmation to write LVM
+    d-i partman-lvm/confirm boolean true
+    d-i partman-lvm/confirm_nooverwrite boolean true
+
+    # Confirmation to write MD
+    d-i partman-md/confirm boolean true
+    d-i partman-md/confirm_nooverwrite boolean true
+
+
+    d-i partman-auto-raid/recipe string         \
+        1 2 0 ext4 /boot                        \
+            /dev/sda1#/dev/sdb1                 \
+        .                                       \
+        1 2 0 lvm -                             \
+            /dev/sda5#/dev/sdb5                 \
+        .
+
+    d-i partman-auto/expert_recipe string       \
+        multiraid ::                            \
+            100 512 512 raid                    \
+                $lvmignore{ }                   \
+                $primary{ }                     \
+                method{ raid }                  \
+            .                                   \
+            900 5000 400000 raid                \
+                $lvmignore{ }                   \
+                method{ raid }                  \
+            .                                   \
+            700 5000 4000 ext4                  \
+                $defaultignore{ }               \
+                $lvmok{ }                       \
+                method{ format }                \
+                format{ }                       \
+                use_filesystem{ }               \
+                filesystem{ ext4 }              \
+                mountpoint{ / }                 \
+            .                                   \
+            64 512 100% linux-swap              \
+                $defaultignore{ }               \
+                $lvmok{ }                       \
+                method{ swap }                  \
+                format{ }                       \
+            .                                   \
+            100 1000 1000000000 ext4            \
+                $defaultignore{ }               \
+                $lvmok{ }                       \
+                method{ format }                \
+                format{ }                       \
+                use_filesystem{ }               \
+                filesystem{ ext4 }              \
+                mountpoint{ /home }             \
+            .
+
+
+    # This makes partman automatically partition without confirmation, provided
+    # that you told it what to do using one of the methods above.
+    d-i partman-partitioning/confirm_write_new_label boolean true
+    d-i partman/choose_partition select finish
+    d-i partman/confirm boolean true
+    d-i partman/confirm_nooverwrite boolean true
+
+    d-i partman-partitioning/confirm_write_new_label boolean true
+
+    # Configure mdadm BOOT_DEGRADE=True
+    d-i mdadm/boot_degraded boolean true
+
+extra:
