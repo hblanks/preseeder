@@ -161,13 +161,19 @@ exec 1>/var/log/installer-late-command.log
 exec 2>&1
 
 {{ if .AuthorizedKeys }}
-mkdir -p /root/.ssh/
-chmod 700 /root/.ssh
-cat > /root/.ssh/authorized_keys <<EOF
+mkdir -p ~{{.Username}}/.ssh/
+chmod 700 ~{{.Username}}/.ssh
+cat > ~{{.Username}}/.ssh/authorized_keys <<EOF
 {{.AuthorizedKeys}}
 EOF
+chown -R {{.Username}}: ~{{.Username}}/.ssh
+{{ end }}
 
 {{ if .SSHServer }}
+cat > /etc/sudoers.d/90-preseeder-ubuntu <<EOF
+# As in cloud-images, ubuntu needs passwordless sudo
+ubuntu ALL=(ALL) NOPASSWD:ALL
+EOF
 usermod -L {{.Username}}  # Disable password login
 apt-get install -y {{.SSHServer}}
 {{ end }}
