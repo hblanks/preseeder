@@ -103,7 +103,7 @@ d-i apt-setup/contrib boolean true
 
 
 ### Package selection
-tasksel tasksel/first multiselect ssh-server
+tasksel tasksel/first multiselect
 
 
 ### Boot loader installation
@@ -167,8 +167,9 @@ cat > /root/.ssh/authorized_keys <<EOF
 {{.AuthorizedKeys}}
 EOF
 
-# Disable password login for the user created during install
-usermod -L {{ .Username }}
+{{ if .SSHServer }}
+usermod -L {{.Username}}  # Disable password login
+apt-get install -y {{.SSHServer}}
 {{ end }}
 
 {{.LateCommand}}
@@ -194,8 +195,16 @@ type PreseedContext struct {
 	Password    string
 	Partman     string
 	PreseedHost string
+	SSHServer   string
 	Extra       string
 }
+
+type lateCommandContext struct {
+	AuthorizedKeys string
+	LateCommand    string
+	*PreseedContext
+}
+
 
 /*
  * Globals
@@ -217,13 +226,25 @@ func validatePreseedContext(ctx *PreseedContext) error {
 		return fmt.Errorf("failed to parse locale %v",
 			ctx.Locale)
 	}
-
 	if ctx.Country == "" {
 		ctx.Country = submatch[2]
 	}
 	if ctx.Language == "" {
 		ctx.Language = submatch[1]
 	}
+
+	if ctx.Timezone == "" {
+		ctx.Timezone = "UTC"
+	}
+
+	if ctx.Username == "" {
+		return fmt.Errorf("username must be defined")
+	}
+
+	if ctx.Password == "" {
+		return fmt.Errorf("password must be defined")
+	}
+
 	return nil
 }
 

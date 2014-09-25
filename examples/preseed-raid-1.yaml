@@ -5,7 +5,13 @@ locale: en_US.UTF-8
 mirror:
     hostname: archive.ubuntu.com
     directory: /ubuntu
-    # proxy:
+    # NB: a hostname of "proxy_host:3142" + directory of
+    # "/us.archive.ubuntu.com/ubuntu" is almost always what you want,
+    # since this proxy turns out to be used for *all* HTTP traffic
+    # during installation.
+    # See https://bugs.launchpad.net/ubuntu/+source/debian-installer/+bug/568704
+    # for details.
+    proxy:
 
 timezone: UTC
 
@@ -87,4 +93,5 @@ partman: |
     # Configure mdadm BOOT_DEGRADE=True
     d-i mdadm/boot_degraded boolean true
 
+sshserver: openssh-server
 extra:

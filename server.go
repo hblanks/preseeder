@@ -30,12 +30,6 @@ type preseedInput struct {
 	PreseedHost string
 }
 
-type lateCommandInput struct {
-	AuthorizedKeys string
-	LateCommand    string
-	Username       string
-}
-
 type serverSummary struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
@@ -95,13 +89,13 @@ func (s *PreseedServer) handleGetPreseed(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *PreseedServer) handleGetLateCommand(w http.ResponseWriter, r *http.Request) {
-	lateCommandInput := &lateCommandInput{
-		AuthorizedKeys: s.authorizedKeys,
-		LateCommand:    s.lateCommand,
-		Username:       s.preseedContext.Username,
+	lateCommandContext := &lateCommandContext{
+		s.authorizedKeys,
+		s.lateCommand,
+		s.preseedContext,
 	}
 
-	err := s.lateCommandTemplate.Execute(w, lateCommandInput)
+	err := s.lateCommandTemplate.Execute(w, lateCommandContext)
 	if err != nil {
 		log.Printf("handleGetLateCommand: %v", err)
 		http.Error(w, "Internal server error", 500)

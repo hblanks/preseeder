@@ -36,7 +36,7 @@ func getTemplateOutput(t *template.Template, data interface{}) string {
 	var out bytes.Buffer
 	err := t.Execute(&out, data)
 	if err != nil {
-		log.Fatalf("TestGetPreseed: %v", err)
+		log.Fatalf("getTemplateOutput: %v", err)
 	}
 	return out.String()
 }
@@ -92,10 +92,15 @@ func TestGetLateCommand(t *testing.T) {
 	AuthorizedKeys := getAuthorizedKeys()
 	LateCommand := getLateCommand()
 
+	preseedContext := &PreseedContext{
+		PreseedHost: "preseedhost:8080",
+	}
+
 	// Get our expected output
-	input := &lateCommandInput{
+	input := &lateCommandContext{
 		AuthorizedKeys: AuthorizedKeys,
 		LateCommand:    LateCommand,
+		PreseedContext: preseedContext,
 	}
 	output := getTemplateOutput(lateCommandTemplate, input)
 
