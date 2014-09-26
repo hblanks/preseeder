@@ -27,19 +27,15 @@ d-i keymap string us
 
 
 ### Network configuration
-# netcfg will choose an interface that has link if possible. This makes it
-# skip displaying a list if there is more than one interface.
-d-i netcfg/choose_interface select eth0
-
-# If you have a slow dhcp server and the installer times out waiting for
-# it, this might be useful.
-#d-i netcfg/dhcp_timeout string 60
-
-# Disable that annoying WEP key dialog.
-d-i netcfg/wireless_wep string
-
-# All other netcfg options (for setting a static IP or setting a
-# hostname) don't seem to work, so they've been left out.
+# As noted at https://bugs.launchpad.net/ubuntu/+source/netcfg/+bug/855921,
+# "You cannot preseed network settings in a preseed file which the
+# installer is loading from a network location, because the network
+# needs to be configured before the preseed can be fetched."
+#
+# Thus, it does us no good to put netcfg options here.
+#
+# But, for multi-NIC machines, you will need to do at least two things
+# in your pxelinux.cfg. See examples/tftpboot/README.md for details.
 
 
 ### Mirror settings

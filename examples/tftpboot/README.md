@@ -34,7 +34,8 @@ tftp root:
     default auto
     label auto
     kernel ubuntu-installer/amd64/linux
-    append auto=true priority=critical initrd=ubuntu-installer/amd64/initrd.gz ramdisk_size=14984 root=/dev/rd/0 rw -- nomodeset url=http://192.168.2.5:8080/preseed
+    ipappend 2
+    append auto=true priority=critical initrd=ubuntu-installer/amd64/initrd.gz ramdisk_size=14984 root=/dev/rd/0 rw -- nomodeset url=http://192.168.2.5:8080/preseed netcfg/choose_interface=auto
     prompt 0
     timeout 0
     EOF
@@ -45,6 +46,9 @@ tftp root:
     else
         sudo cp -r netboot/ /srv/tftp
     fi
+
+(ipappend 2 and netcfg/choose_interface=auto work to inform multi-NIC
+servers to use the boot interface for network configuration.)
 
 Finally, (install and) start the tftp server.
 
